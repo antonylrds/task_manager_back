@@ -19,11 +19,19 @@ tasksRouter.post('/', async (request, response) => {
   const createTaskService = new CreateTaskService();
   const { title } = request.body;
 
-  const task = await createTaskService.execute({ title });
+  if (!title) {
+    return response.status(404).json({ error: 'Task title is required' });
+  }
 
-  delete task.id;
+  try {
+    const task = await createTaskService.execute({ title });
 
-  return response.status(201).json(task);
+    delete task.id;
+
+    return response.status(201).json(task);
+  } catch (error) {
+    return response.status(500).json({ error: 'Internal Server error' });
+  }
 });
 
 tasksRouter.put('/:id', async (request, response) => {
@@ -32,14 +40,22 @@ tasksRouter.put('/:id', async (request, response) => {
   const { id } = request.params;
   const { status } = request.body;
 
-  const task = await updateTaskService.execute({
-    id: parseInt(id, 10),
-    status,
-  });
+  if (!status) {
+    return response.status(404).json({ error: 'Task status is required' });
+  }
 
-  delete task.id;
+  try {
+    const task = await updateTaskService.execute({
+      id: parseInt(id, 10),
+      status,
+    });
 
-  return response.json(task);
+    delete task.id;
+
+    return response.json(task);
+  } catch (error) {
+    return response.status(404).json({ error: error.message });
+  }
 });
 
 tasksRouter.delete('/:id', async (request, response) => {
@@ -47,9 +63,13 @@ tasksRouter.delete('/:id', async (request, response) => {
 
   const { id } = request.params;
 
-  await deleteTaskService.execute(parseInt(id, 10));
+  try {
+    await deleteTaskService.execute(parseInt(id, 10));
 
-  return response.status(204).send();
+    return response.status(204).send();
+  } catch (error) {
+    return response.status(404).json({ error: error.message });
+  }
 });
 
 export default tasksRouter;
