@@ -12,6 +12,7 @@ export default class CreateTableTask1612585536370
             type: 'integer',
             isPrimary: true,
             generationStrategy: 'increment',
+            isGenerated: true,
           },
           {
             name: 'title',
