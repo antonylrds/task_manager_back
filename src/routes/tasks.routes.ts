@@ -5,24 +5,24 @@ import ListTaskService from '../services/ListTaskService';
 import UpdateTaskService from '../services/UpdateTaskService';
 import DeleteTaskService from '../services/DeleteTaskService';
 
+import ensureAuthenticaded from '../middlewares/ensureAuthenticated';
+
 const tasksRouter = Router();
+
+tasksRouter.use(ensureAuthenticaded);
 
 tasksRouter.get('/', async (request, response) => {
   const listTaskService = new ListTaskService();
 
   const { page, limit } = request.query;
 
-  try {
-    const tasks = await listTaskService.execute(+page, +limit);
+  const tasks = await listTaskService.execute(+page, +limit);
 
-    return response.json({
-      tasks,
-      perPage: +limit,
-      page: +page,
-    });
-  } catch (error) {
-    return response.status(404).json({ error: error.message });
-  }
+  return response.json({
+    tasks,
+    perPage: +limit,
+    page: +page,
+  });
 });
 
 tasksRouter.post('/', async (request, response) => {
@@ -33,17 +33,13 @@ tasksRouter.post('/', async (request, response) => {
     return response.status(404).json({ error: 'Task title is required' });
   }
 
-  try {
-    const task = await createTaskService.execute({ title });
+  const task = await createTaskService.execute({ title });
 
-    delete task.id;
-    delete task.created_at;
-    delete task.updated_at;
+  delete task.id;
+  delete task.created_at;
+  delete task.updated_at;
 
-    return response.status(201).json(task);
-  } catch (error) {
-    return response.status(500).json({ error: 'Internal Server error' });
-  }
+  return response.status(201).json(task);
 });
 
 tasksRouter.put('/:id', async (request, response) => {
@@ -56,20 +52,16 @@ tasksRouter.put('/:id', async (request, response) => {
     return response.status(404).json({ error: 'Task status is required' });
   }
 
-  try {
-    const task = await updateTaskService.execute({
-      id: parseInt(id, 10),
-      status,
-    });
+  const task = await updateTaskService.execute({
+    id: parseInt(id, 10),
+    status,
+  });
 
-    delete task.id;
-    delete task.created_at;
-    delete task.updated_at;
+  delete task.id;
+  delete task.created_at;
+  delete task.updated_at;
 
-    return response.json(task);
-  } catch (error) {
-    return response.status(404).json({ error: error.message });
-  }
+  return response.json(task);
 });
 
 tasksRouter.delete('/:id', async (request, response) => {
@@ -77,13 +69,9 @@ tasksRouter.delete('/:id', async (request, response) => {
 
   const { id } = request.params;
 
-  try {
-    await deleteTaskService.execute(parseInt(id, 10));
+  await deleteTaskService.execute(parseInt(id, 10));
 
-    return response.status(204).send();
-  } catch (error) {
-    return response.status(404).json({ error: error.message });
-  }
+  return response.status(204).send();
 });
 
 export default tasksRouter;

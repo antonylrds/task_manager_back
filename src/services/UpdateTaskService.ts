@@ -2,6 +2,8 @@ import { getRepository } from 'typeorm';
 
 import Task from '../models/Task';
 
+import AppError from '../errors/AppError';
+
 interface TaskDTO {
   id: number;
   status: 'pending' | 'done' | 'canceled';
@@ -19,13 +21,13 @@ class UpdateTaskService {
     });
 
     if (!task) {
-      throw new Error('Task does not exists');
+      throw new AppError('Task does not exists', 404);
     }
 
     const validStatus = statusTypes.indexOf(status) > -1;
 
     if (!validStatus) {
-      throw new Error(
+      throw new AppError(
         `Task status must be one of the following: ${statusTypes.join(', ')}`,
       );
     }

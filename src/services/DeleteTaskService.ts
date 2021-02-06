@@ -2,6 +2,8 @@ import { getRepository } from 'typeorm';
 
 import Task from '../models/Task';
 
+import AppError from '../errors/AppError';
+
 class DeleteTaskService {
   public async execute(id: number): Promise<null> {
     const tasksRepository = getRepository(Task);
@@ -9,7 +11,7 @@ class DeleteTaskService {
     const task = await tasksRepository.findOne(id);
 
     if (!task) {
-      throw new Error('Task does not exists');
+      throw new AppError('Task does not exists');
     }
 
     await tasksRepository.remove(task);
