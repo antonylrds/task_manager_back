@@ -10,9 +10,19 @@ const tasksRouter = Router();
 tasksRouter.get('/', async (request, response) => {
   const listTaskService = new ListTaskService();
 
-  const tasks = await listTaskService.execute();
+  const { page, limit } = request.query;
 
-  return response.json(tasks);
+  try {
+    const tasks = await listTaskService.execute(+page, +limit);
+
+    return response.json({
+      tasks,
+      perPage: +limit,
+      page: +page,
+    });
+  } catch (error) {
+    return response.status(404).json({ error: error.message });
+  }
 });
 
 tasksRouter.post('/', async (request, response) => {
@@ -27,6 +37,8 @@ tasksRouter.post('/', async (request, response) => {
     const task = await createTaskService.execute({ title });
 
     delete task.id;
+    delete task.created_at;
+    delete task.updated_at;
 
     return response.status(201).json(task);
   } catch (error) {
@@ -51,6 +63,8 @@ tasksRouter.put('/:id', async (request, response) => {
     });
 
     delete task.id;
+    delete task.created_at;
+    delete task.updated_at;
 
     return response.json(task);
   } catch (error) {
