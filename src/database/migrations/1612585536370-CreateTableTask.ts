@@ -16,12 +16,21 @@ export default class CreateTableTask1612585536370
           {
             name: 'title',
             type: 'varchar',
-            isNullable: false,
           },
           {
             name: 'status',
-            type: 'varchar',
-            isNullable: false,
+            type: 'enum',
+            enum: ['pending', 'done', 'canceled'],
+          },
+          {
+            name: 'created_at',
+            type: 'timestamp',
+            default: 'NOW()',
+          },
+          {
+            name: 'updated_at',
+            type: 'timestamp',
+            default: 'NOW()',
           },
         ],
       }),
@@ -29,6 +38,6 @@ export default class CreateTableTask1612585536370
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('task');
+    await queryRunner.dropTable('tasks');
   }
 }
